@@ -2,10 +2,12 @@ FROM php:8.2-fpm
 
 # MariaDB 연동을 위한 확장 설치
 RUN docker-php-ext-install mysqli pdo pdo_mysql
-ENV DB_HOST: database.cdyykgyowiim.ap-northeast-2.rds.amazonaws.com
-ENV DB_USER: admin
-ENV DB_PASSWORD: 1q2w3e4r!
-ENV DB_NAME: mydb
+
+# 데이터베이스 환경 변수 선언
+ENV DB_HOST=database.cdyykgyowiim.ap-northeast-2.rds.amazonaws.com \
+    DB_USER=admin \
+    DB_PASSWORD=1q2w3e4r! \
+    DB_NAME=mydb
 
 WORKDIR /var/www/html
 
