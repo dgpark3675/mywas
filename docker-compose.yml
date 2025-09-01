@@ -1,0 +1,58 @@
+version: "3.8"
+
+services:
+  was:
+    build: .
+    container_name: php-was
+    ports:
+      - "9000:9000"
+    environment:
+      DB_HOST: database.cdyykgyowiim.ap-northeast-2.rds.amazonaws.com
+      DB_USER: admin
+      DB_PASSWORD: 1q2w3e4r!
+      DB_NAME: mydb
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"  # Exposes Prometheus to your EC2 instance's public IP
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - monitoring
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - "8080:8080" # Exposes cAdvisor's metrics
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000" # Exposes Grafana to your EC2 instance's public IP
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+
+# Define the network and volume
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  grafana-data:
